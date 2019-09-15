@@ -52,34 +52,16 @@ exports.donateToPool = functions.https.onRequest(async (req, res) => {
 
     let today = new Date();
     let datefield = today.toISOString().slice(0,10)
+    // let datefield = '2019-10-10';
 
     const donorId = req.query.donorId;
     const amount = req.query.amount;
 
-    let allPoolRef = db.collection('Pools');
+    let poolRef = db.collection('Pools').doc(datefield);
     let donorRef = db.collection('Donors').doc(donorId);
 
     // Add new date if not created
-    // await allPoolRef.get().then(snapshot => {
-    //     let hasDate = false;
-    //     snapshot.forEach(doc => {
-    //         if (datefield === doc.data().date) {
-    //             hasDate = true;
-    //         }
-    //     });
-    //     if (!hasDate) {
-    //         let data = {
-    //             date: datefield,
-    //             totalAmount: 0,
-    //         };
-    //         await db.collection('Pools').doc(datefield).set(data);
-    //     }
-    // }).catch(err => {
-    //     console.log('Error getting documents', err);
-    //     return res.send(err);
-    // });
-
-    let poolRef = db.collection('Pools').doc(datefield);
+    // db.collection('Pools').doc(datefield).set({date: datefield, totalAmount: 0}, {merge: true})
 
     // Update Pool
     await poolRef.update({ totalAmount: admin.firestore.FieldValue.increment(Number(amount)) });
