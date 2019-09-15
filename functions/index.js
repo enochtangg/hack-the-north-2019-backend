@@ -212,6 +212,46 @@ exports.getReceiverInfo = functions.https.onRequest(async (req, res) => {
     });
 });
 
+exports.merchantMinus = functions.https.onRequest(async (req, res) => {
+    /*
+    Subtracts an amount from a receiver's balance.
+    
+    Endpoint: GET
+    Params: receiverId -> String (uuid),
+            amount -> Number
+    Response: {
+        result: String,
+    }
+    */
+    const db = admin.firestore();
+    const receiverId = req.query.receiverId;
+    const amount = req.query.amount;
+
+    let receiverRef = db.collection('Receivers').doc(receiverId);
+    let canPurchase = false;
+    await receiverRef.get().then(doc => {
+        if (!doc.exists) {
+            return res.send({result: "Does not exists"});
+        } else {
+            if (doc.data().balance < amount) {
+                return res.send({result: "You do not have sufficient funds"});
+            } else {                
+                canPurchase = true;
+            }
+        }
+        return doc;
+    })
+    .catch(err => {
+        console.log('Error getting document', err);
+        return res.send(err)
+    });
+
+    if (canPurchase) {
+        await receiverRef.update({ balance: admin.firestore.FieldValue.increment(-Number(amount)) });
+    }
+    return res.send({result: "Success"});
+});
+
 exports.poolMessagingTrigger = functions.firestore.document('Pools/2019-09-15').onUpdate((change, context) => {
     /*
     Invokes Google Cloud Messaging to push new messages to listed phones. Triggered on update in Pools collection.
