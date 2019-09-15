@@ -13,7 +13,6 @@ exports.pingFunction = functions.https.onRequest(async (req, res) => {
 });
 
 exports.getCurrentPool = functions.https.onRequest(async (req, res) => {
-    // Push the new message into Cloud Firestore using the Firebase Admin SDK.
     const db = admin.firestore();
     let today = new Date();
     let datefield = today.toISOString().slice(0,10)
@@ -33,7 +32,6 @@ exports.getCurrentPool = functions.https.onRequest(async (req, res) => {
 });
 
 exports.getAllPool = functions.https.onRequest(async (req, res) => {
-    // Push the new message into Cloud Firestore using the Firebase Admin SDK.
     const db = admin.firestore();
     let poolRef = db.collection('Pools');
     let payload = []
@@ -50,10 +48,7 @@ exports.getAllPool = functions.https.onRequest(async (req, res) => {
     });
 });
 
-exports.donate = functions.https.onRequest(async (req, res) => {
-    // Push the new message into Cloud Firestore using the Firebase Admin SDK.
-    // Param: receiverId -> string
-    //        amount     -> number
+exports.donateToPool = functions.https.onRequest(async (req, res) => {
     const db = admin.firestore();
 
     let today = new Date();
@@ -66,7 +61,7 @@ exports.donate = functions.https.onRequest(async (req, res) => {
     let poolRef = db.collection('Pools').doc(datefield);
     let donorRef = db.collection('Donors').doc(donorId);
 
-    // Check if today's document exists
+    // TODO: Check if today's document exists
 
     // Update Pool
     await poolRef.update({ totalAmount: admin.firestore.FieldValue.increment(Number(amount)) });
@@ -79,6 +74,25 @@ exports.donate = functions.https.onRequest(async (req, res) => {
 
     res.json({result: "Success"});
 
-    // Update Receiver balance
-
+    // TODO: Update Receiver balance
 });
+
+exports.getDonorInfo = functions.https.onRequest(async (req, res) => {
+    const db = admin.firestore();
+
+    const donorId = req.query.donorId;
+
+    let donorRef = db.collection('Donors').doc(donorId);
+    await donorRef.get().then(doc => {
+        if (!doc.exists) {
+            return res.send({result: "Does not exists"});
+        } else {
+            return res.send(doc.data());
+        }
+    })
+    .catch(err => {
+        console.log('Error getting document', err);
+        return res.send(err)
+    });
+});
+
