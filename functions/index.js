@@ -252,6 +252,40 @@ exports.merchantMinus = functions.https.onRequest(async (req, res) => {
     return res.send({result: "Success"});
 });
 
+// exports.getDividedPool = functions.https.onRequest(async (req, res) => {
+//     /*
+//     Subtracts an amount from a receiver's balance.
+    
+//     Endpoint: GET
+//     Params: receiverId -> String (uuid),
+//             amount -> Number
+//     Response: {
+//         result: String,
+//     }
+//     */
+//     const db = admin.firestore();
+
+//     await db.collection("Receivers").get().then(snapshot => {
+//         let numberOfReceivers = snapshot.size;
+        
+//         let today = new Date();
+//         let datefield = today.toISOString().slice(0,10);
+//         let poolRef = db.collection('Pools').doc(datefield);
+
+//         poolRef.get().then(doc => {
+//             if (!doc.exists) {
+//                 return res.send({result: "Does not exists"});
+//             } else {
+//                 let dividedAmount = doc.data().totalAmount / numberOfReceivers;
+//                 return res.send({dividedAmount: dividedAmount});
+//             }
+//         }).catch(err => {
+//             console.log('Error getting document', err);
+//             return res.send(err)
+//         });
+//     });
+// });
+
 exports.poolMessagingTrigger = functions.firestore.document('Pools/2019-09-15').onUpdate((change, context) => {
     /*
     Invokes Google Cloud Messaging to push new messages to listed phones. Triggered on update in Pools collection.
@@ -271,6 +305,8 @@ exports.poolMessagingTrigger = functions.firestore.document('Pools/2019-09-15').
     };
     let registrationTokens = [
         'e9AJtZ95mh0:APA91bGAjWxqevadN9W7K2frJOzEddHQJ4vHpu6HnxzoqlkniGNsSqjkyaCA2LRF85ZC_ReMe2iy3tqFuq8pE-y7Z-Syk5uK8e9qWGIdn1qHwRyst720xd-7ptsFm5sw4T2-Q3ir4HVC',
+        'e-4-A-Oh1P8:APA91bGn-zXJMFybp9miJFTAogyg6bQGTRNeBtonBBk9fcL8LXSwQ1cqHqwH3XpWp9f7xlSHCgaBaspZyryFlvZDjTBCtVxWJlvfg-UYnFlrKRp7g2eDz99wL6VC26LHGmSmJluXDJD1',
+        'd2XNEWcoeKY:APA91bESClIvoXbwWtSjNyaW4yEYf62ekexniB2R126Js-flsNW0qhbgAM7LlZjKQ8viTBvu_F4kelJauoRElZ_3eX7Rm2yEBuyVYVYLJrqyhOuKiFaXM5dwUfZNraAw0dfzW6A-z8bk',
     ];
   
     // Subscribe the devices corresponding to the registration tokens to the topic.
